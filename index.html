@@ -1,0 +1,635 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Universal AI Game Creator</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#10121a;
+  --panel:#1a1e2b;
+  --panel2:#22273a;
+  --border:#30374d;
+  --text:#f3f5ff;
+  --muted:#aab3cc;
+  --accent:#917cff;
+  --accent2:#b6a7ff;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Inter,Segoe UI,Arial,sans-serif;min-height:100vh
+}
+button,input,textarea,select{font:inherit}
+button{
+  border:0;border-radius:11px;padding:12px 16px;
+  background:var(--accent);color:white;font-weight:700;
+  cursor:pointer;transition:filter .15s,transform .15s
+}
+button:hover{filter:brightness(1.12)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.55;cursor:wait}
+button.secondary{background:#30374d}
+button.ghost{background:transparent;border:1px solid var(--border)}
+input,textarea,select{
+  width:100%;padding:13px;border-radius:10px;
+  border:1px solid var(--border);background:#111522;
+  color:var(--text);outline:none
+}
+input:focus,textarea:focus,select:focus{
+  border-color:var(--accent)
+}
+textarea{min-height:120px;resize:vertical}
+label{display:block;margin:16px 0 8px;color:#dce1f5;font-size:14px}
+p{color:var(--muted);line-height:1.6}
+.hidden{display:none!important}
+button:focus-visible,a:focus-visible{
+  outline:2px solid var(--accent2);outline-offset:3px
+}
+#loginScreen{
+  min-height:100vh;display:grid;place-items:center;padding:20px
+}
+.login-card{
+  width:min(440px,100%);padding:30px;border-radius:22px;
+  border:1px solid var(--border);background:var(--panel)
+}
+.logo{
+  width:48px;height:48px;display:grid;place-items:center;
+  border-radius:15px;background:#322b58;font-size:25px
+}
+.brand{display:flex;align-items:center;gap:12px}
+h1,h2,h3{margin-top:0}
+h1{font-size:22px;margin-bottom:3px}
+h2{font-size:21px}
+h3{font-size:16px}
+.app{display:grid;grid-template-columns:235px minmax(0,1fr);min-height:100vh}
+.sidebar{
+  background:#151823;border-right:1px solid var(--border);
+  padding:23px 15px;display:flex;flex-direction:column;gap:22px
+}
+.nav-title{
+  padding:9px 12px;color:var(--muted);font-size:12px;
+  text-transform:uppercase;letter-spacing:1.2px
+}
+.nav-button{
+  display:flex;align-items:center;gap:11px;width:100%;
+  text-align:left;background:transparent;color:#c5cbe0;margin:3px 0
+}
+.nav-button.active{background:#2c2846;color:white}
+.side-bottom{margin-top:auto}
+.main{padding:28px;min-width:0;max-width:1400px;width:100%;margin:0 auto}
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:15px;margin-bottom:26px
+}
+.topbar p{margin:5px 0 0}
+.avatar{
+  background:#302a4e;border:1px solid #51447c;border-radius:12px;
+  padding:10px 13px;color:var(--accent2);font-weight:800
+}
+.welcome{
+  padding:27px;border-radius:19px;border:1px solid #443b6b;
+  background:linear-gradient(120deg,#292344,#1b2032 72%);
+  margin-bottom:23px
+}
+.welcome h2{font-size:25px;margin-bottom:8px}
+.welcome p{max-width:660px;margin:0}
+.stats{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:14px;margin-bottom:24px
+}
+.stat,.panel,.game-card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:16px
+}
+.stat{padding:17px}
+.stat-label{font-size:13px;color:var(--muted)}
+.stat-number{font-size:26px;font-weight:800;margin-top:9px}
+.panel{padding:22px;margin-bottom:20px}
+.panel-head{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;flex-wrap:wrap;margin-bottom:10px
+}
+.panel-head h2{margin:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 15px}
+.mode-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0 17px;padding:12px 14px;border:1px solid var(--border);border-radius:12px;background:#151a29}
+.mode-label{color:var(--muted);font-size:13px}
+.mode-chip{padding:7px 14px;border-radius:9px;background:#322b58;border:1px solid #6b5aab;color:#e4ddff;font-weight:800}
+.mode-note,.genre-hint{color:var(--muted);font-size:12px}
+.genre-hint{margin:7px 0 0;line-height:1.5}
+.apk-option{display:flex;align-items:center;gap:10px;margin:14px 0 4px;color:#dce1f5}
+.apk-option input{width:18px;height:18px;margin:0;accent-color:var(--accent)}
+.apk-option span{font-size:14px}
+.apk-note{display:block;color:var(--muted);font-size:12px;margin:5px 0 0 28px}
+.full{grid-column:1/-1}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.status{color:var(--muted);white-space:pre-wrap;margin-top:13px;font-size:14px}
+.status.error{color:#ff9d9d}
+.status.success{color:#90e6bd}
+.library-grid{
+  display:grid;grid-template-columns:repeat( auto-fit,minmax(230px,1fr));
+  gap:15px
+}
+.game-card{padding:17px;min-width:0}
+.game-art{
+  height:110px;border-radius:12px;display:grid;place-items:center;
+  font-size:39px;margin-bottom:15px;
+  background:radial-gradient(circle at 25% 20%,#50447f,#22243c 68%)
+}
+.game-name{overflow-wrap:anywhere;margin-bottom:7px}
+.game-meta{font-size:12px;color:var(--muted);margin-bottom:14px}
+.game-actions{display:flex;gap:8px;flex-wrap:wrap}
+.game-actions button{flex:1;padding:10px 12px;font-size:13px}
+.empty{
+  border:1px dashed #424a63;border-radius:14px;padding:27px;
+  text-align:center;color:var(--muted)
+}
+#preview{
+  width:100%;height:540px;border:1px solid var(--border);
+  border-radius:13px;background:white;margin-top:15px
+}
+.preview-link{color:var(--accent2);overflow-wrap:anywhere}
+footer{color:#77819c;font-size:12px;text-align:center;padding:16px}
+@media(max-width:800px){
+  .app{grid-template-columns:1fr}
+  .sidebar{border-right:0;border-bottom:1px solid var(--border);padding:13px}
+  .sidebar .brand{padding:5px}
+  .nav-title,.side-bottom{display:none}
+  .nav-row{display:flex;gap:8px}
+  .nav-button{justify-content:center;padding:10px 8px}
+  .main{padding:18px}
+}
+@media(max-width:540px){
+  .stats{grid-template-columns:1fr}
+  .form-grid{grid-template-columns:1fr}
+  .full{grid-column:auto}
+  .topbar{align-items:flex-start}
+  .welcome{padding:20px}
+  .welcome h2{font-size:21px}
+  .panel{padding:16px}
+  #preview{height:420px}
+}
+</style>
+</head>
+<body>
+
+<section id="loginScreen">
+  <div class="login-card">
+    <div class="brand">
+      <div class="logo">🎮</div>
+      <div>
+        <h1>Universal AI</h1>
+        <p style="margin:0">Game Creator Studio</p>
+      </div>
+    </div>
+    <h2 style="margin-top:30px">Welcome back</h2>
+    <p>Sign in to create and manage your games.</p>
+    <form id="loginForm">
+      <label for="password">Role password</label>
+      <input id="password" type="password" required
+             autocomplete="current-password"
+             placeholder="Enter your app password">
+      <button id="loginBtn" style="width:100%;margin-top:17px">
+        Log in to Studio
+      </button>
+    </form>
+    <div id="loginStatus" class="status" role="status"></div>
+  </div>
+</section>
+
+<div id="app" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">🎮</div>
+      <div><strong>Universal AI</strong><br>
+        <small style="color:var(--muted)">Creator Studio</small>
+      </div>
+    </div>
+
+    <div>
+      <div class="nav-title">Workspace</div>
+      <div class="nav-row">
+        <button class="nav-button active" id="dashboardNav"
+                onclick="showView('dashboard')">▦ Dashboard</button>
+        <button class="nav-button" id="libraryNav"
+                onclick="showView('library')">▣ My Games</button>
+      </div>
+    </div>
+
+    <div class="side-bottom">
+      <button class="nav-button" onclick="logout()">↪ Log out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageSubtitle">Turn your ideas into playable games.</p>
+      </div>
+      <div class="avatar" id="roleBadge">AI</div>
+    </div>
+
+    <section id="dashboardView">
+      <div class="welcome">
+        <h2>Your next game starts here ✨</h2>
+        <p>Describe your idea, choose a genre, and let AI create a playable game
+           with its own title lobby. Build an installable Android APK too.</p>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Saved games</div>
+          <div class="stat-number" id="totalGames">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Creation engine</div>
+          <div class="stat-number" style="font-size:19px">Gemini AI</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Game format</div>
+          <div class="stat-number" style="font-size:19px">HTML5 + APK</div>
+        </div>
+      </div>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Create a new game</h2>
+          <span style="color:var(--accent2);font-size:13px">AI Studio</span>
+        </div>
+        <p>Choose a genre. The AI will keep that gameplay type and create a game logo/title lobby. Describe the player, goal, obstacles and controls.</p>
+
+        <div class="mode-row" aria-label="Game dimension">
+          <span class="mode-label">Game mode</span>
+          <span class="mode-chip">2D only</span>
+          <span class="mode-note">Plays in your browser</span>
+        </div>
+
+        <form id="createForm">
+          <div class="form-grid">
+            <div>
+              <label for="name">Game name</label>
+              <input id="name" maxlength="60" value="My 2D Game" required>
+            </div>
+            <div>
+              <label for="genre">Game genre</label>
+              <select id="genre" required>
+                <option value="" disabled selected>Choose a genre</option>
+                <option value="Action">Action</option>
+                <option value="Simulation">Simulation</option>
+                <option value="Puzzle">Puzzle</option>
+                <option value="Adventure">Adventure</option>
+                <option value="Racing">Racing</option>
+                <option value="Role Playing">Role Playing</option>
+                <option value="Strategy">Strategy</option>
+                <option value="Sports">Sports</option>
+                <option value="Card">Card</option>
+                <option value="Board">Board</option>
+                <option value="Educational">Educational</option>
+                <option value="Word">Word</option>
+                <option value="Platformer">Platformer</option>
+              </select>
+              <p class="genre-hint">Example: choose Puzzle for Candy Crush-style matching; choose Platformer for jumping.</p>
+            </div>
+            <div class="full">
+              <label for="idea">Describe your game</label>
+              <textarea id="idea" maxlength="2000" required
+                placeholder="Example: A Candy Crush-style match-3 puzzle. Match 3 or more candies, reach a target score in 20 moves, and add touch controls and a restart button."></textarea>
+            </div>
+          </div>
+          <div class="actions">
+            <button id="createBtn">✦ Generate my game</button>
+          </div>
+          <label class="apk-option" for="buildAndroid">
+            <input id="buildAndroid" type="checkbox">
+            <span>Automatically build an Android APK</span>
+          </label>
+          <small class="apk-note">Android APK optional hai. Server par Android SDK install ho to hi banega.</small>
+          <div id="createStatus" class="status" role="status"></div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Recently created</h2>
+          <button class="secondary" onclick="showView('library')">View library →</button>
+        </div>
+        <div id="recentGames" class="library-grid"></div>
+      </section>
+    </section>
+
+    <section id="libraryView" class="hidden">
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <h2>My Games Library</h2>
+            <p style="margin:7px 0 0">Your saved projects, ready to play.</p>
+          </div>
+          <button class="secondary" id="refreshBtn" onclick="loadGames()">
+            ↻ Refresh
+          </button>
+        </div>
+        <div id="libraryStatus" class="status" role="status"></div>
+        <div id="gamesGrid" class="library-grid"></div>
+      </section>
+    </section>
+
+    <section id="previewPanel" class="panel hidden">
+      <div class="panel-head">
+        <h2 id="previewTitle">Game Preview</h2>
+        <button class="secondary" onclick="closePreview()">Close preview</button>
+      </div>
+      <p>Use the game controls inside the preview. Play Again reloads this saved game.</p>
+      <a id="openGameLink" class="preview-link" target="_blank"
+         rel="noopener">Open game in a new tab ↗</a>
+      <iframe id="preview" title="Generated game preview"></iframe>
+    </section>
+
+    <footer>Universal AI Game Creator · Local projects stay on this computer</footer>
+  </main>
+</div>
+
+<script>
+let gamesCache = [];
+let currentGameUrl = "";
+let currentRole = null;
+
+const $ = id => document.getElementById(id);
+
+async function api(url, options = {}) {
+  const response = await fetch(url, {
+    credentials: "same-origin",
+    ...options,
+    headers: {
+      ...(options.body ? {"Content-Type":"application/json"} : {}),
+      ...(options.headers || {})
+    }
+  });
+
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(data.error || `Request failed (${response.status})`);
+  }
+  return data;
+}
+
+function setStatus(id, message, type = "") {
+  const el = $(id);
+  el.textContent = message;
+  el.className = "status" + (type ? " " + type : "");
+}
+
+function applyRole(role) {
+  currentRole = role;
+  const canCreate = role === "admin" || role === "normal";
+  $("dashboardNav").classList.toggle("hidden", !canCreate);
+  $("dashboardView").classList.toggle("hidden", !canCreate);
+  $("createForm").classList.toggle("hidden", !canCreate);
+  $("roleBadge").textContent = role ? role.toUpperCase() : "AI";
+  if (!canCreate) showView("library");
+}
+
+function showApp(role = currentRole) {
+  $("loginScreen").classList.add("hidden");
+  $("app").classList.remove("hidden");
+  if (role) applyRole(role);
+}
+
+function showLogin() {
+  $("app").classList.add("hidden");
+  $("loginScreen").classList.remove("hidden");
+  currentRole = null;
+}
+
+async function login(event) {
+  if (event) event.preventDefault();
+
+  const button = $("loginBtn");
+  button.disabled = true;
+  setStatus("loginStatus", "Signing in...");
+
+  try {
+    const data = await api("/api/login", {
+      method:"POST",
+      body:JSON.stringify({password:$("password").value})
+    });
+    $("password").value = "";
+    showApp(data.role);
+    await loadGames();
+  } catch (error) {
+    setStatus("loginStatus", error.message, "error");
+  } finally {
+    button.disabled = false;
+  }
+}
+
+async function logout() {
+  try {
+    await api("/api/logout", {method:"POST"});
+  } catch (error) {
+    console.error(error);
+  }
+  closePreview();
+  showLogin();
+}
+
+function showView(view) {
+  const dashboard = view === "dashboard";
+  $("dashboardView").classList.toggle("hidden", !dashboard);
+  $("libraryView").classList.toggle("hidden", dashboard);
+  $("dashboardNav").classList.toggle("active", dashboard);
+  $("libraryNav").classList.toggle("active", !dashboard);
+  $("pageTitle").textContent = dashboard ? "Dashboard" : "My Games";
+  $("pageSubtitle").textContent = dashboard
+    ? "Turn your ideas into playable games."
+    : "All your saved game projects in one place.";
+  if (!dashboard) loadGames();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&":"&amp;", "<":"&lt;", ">":"&gt;",
+    '"':"&quot;", "'":"&#39;"
+  })[char]);
+}
+
+function renderGames(targetId, games) {
+  const container = $(targetId);
+  container.replaceChildren();
+
+  if (!games.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.style.gridColumn = "1 / -1";
+    empty.textContent = "No saved games yet. Create your first game from the Dashboard!";
+    container.appendChild(empty);
+    return;
+  }
+
+  for (const game of games) {
+    const card = document.createElement("article");
+    card.className = "game-card";
+
+    const art = document.createElement("div");
+    art.className = "game-art";
+    art.textContent = "🎮";
+
+    const title = document.createElement("h3");
+    title.className = "game-name";
+    title.textContent = game.name || game.folder;
+
+    const meta = document.createElement("div");
+    meta.className = "game-meta";
+    const date = new Date(Number(game.modified) * 1000);
+    meta.textContent = "Saved " + (
+      Number.isNaN(date.getTime()) ? "previously" : date.toLocaleString()
+    );
+
+    const actions = document.createElement("div");
+    actions.className = "game-actions";
+
+    if (currentRole === "admin" || currentRole === "normal") {
+      const play = document.createElement("button");
+      play.textContent = "▶ Play";
+      play.addEventListener("click", () => openGame(game));
+
+      const again = document.createElement("button");
+      again.className = "secondary";
+      again.textContent = "↻ Play Again";
+      again.addEventListener("click", () => openGame(game, true));
+      actions.append(play, again);
+    }
+    if (currentRole === "admin" || currentRole === "download") {
+      const download = document.createElement("button");
+      download.className = "secondary";
+      download.textContent = "⬇ Download Game (.zip)";
+      download.addEventListener("click", () => {
+        window.location.href = game.download_url;
+      });
+      actions.appendChild(download);
+    }
+    if ((currentRole === "admin" || currentRole === "download") && game.apk_url) {
+      const apk = document.createElement("button");
+      apk.className = "secondary";
+      apk.textContent = "⬇ Download APK";
+      apk.title = "Download this game to install it on an Android phone";
+      apk.addEventListener("click", () => {
+        window.location.href = game.apk_url;
+      });
+      actions.appendChild(apk);
+    }
+    card.append(art, title, meta, actions);
+    container.appendChild(card);
+  }
+}
+
+async function loadGames() {
+  const refresh = $("refreshBtn");
+  if (refresh) refresh.disabled = true;
+  setStatus("libraryStatus", "Loading saved games...");
+
+  try {
+    const data = await api("/api/games");
+    gamesCache = Array.isArray(data.games) ? data.games : [];
+    $("totalGames").textContent = String(gamesCache.length);
+    renderGames("gamesGrid", gamesCache);
+    renderGames("recentGames", gamesCache.slice(0, 3));
+    setStatus("libraryStatus",
+      gamesCache.length ? `${gamesCache.length} saved game(s) found.` :
+      "Your library is empty. Generate your first game!", "success");
+  } catch (error) {
+    setStatus("libraryStatus", error.message, "error");
+    if (error.message.toLowerCase().includes("log in")) showLogin();
+  } finally {
+    if (refresh) refresh.disabled = false;
+  }
+}
+
+function openGame(game, replay = false) {
+  if (!game || !game.play_url) return;
+
+  currentGameUrl = game.play_url;
+  $("previewTitle").textContent = game.name || "Game Preview";
+  $("openGameLink").href = currentGameUrl;
+
+  // Reloading the saved URL restarts the game without generating it again.
+  $("preview").src = currentGameUrl + (replay ? "?replay=" : "?open=") + Date.now();
+  $("previewPanel").classList.remove("hidden");
+  $("previewPanel").scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function closePreview() {
+  $("preview").src = "about:blank";
+  $("previewPanel").classList.add("hidden");
+  currentGameUrl = "";
+}
+
+async function createGame(event) {
+  event.preventDefault();
+  const button = $("createBtn");
+  button.disabled = true;
+  const wantsApk = $("buildAndroid").checked;
+  setStatus("createStatus", wantsApk
+    ? "AI is creating your game and building its Android APK. This can take a few minutes..."
+    : "AI is creating your game. This can take a little while...");
+
+  try {
+    const data = await api("/api/create", {
+      method:"POST",
+      body:JSON.stringify({
+        name:$("name").value,
+        genre:$("genre").value,
+        idea:$("idea").value,
+        build_android:wantsApk
+      })
+    });
+
+    if (wantsApk && data.apk_ready) {
+      setStatus("createStatus", "Game saved and Android APK is ready. Find Download APK in My Games.", "success");
+    } else if (wantsApk) {
+      setStatus("createStatus", "Game saved, but APK build failed: " + (data.apk_error || "Check the server terminal."), "error");
+    } else {
+      setStatus("createStatus", "Game saved successfully. Android APK was not requested.", "success");
+    }
+
+    const game = {
+      name:data.name || $("name").value,
+      folder:data.folder,
+      play_url:data.play_url,
+      modified:Date.now() / 1000
+    };
+
+    closePreview();
+    openGame(game);
+    await loadGames();
+  } catch (error) {
+    setStatus("createStatus", "Error: " + error.message, "error");
+  } finally {
+    button.disabled = false;
+  }
+}
+
+$("loginForm").addEventListener("submit", login);
+$("createForm").addEventListener("submit", createGame);
+
+(async function init() {
+  try {
+    const data = await api("/api/session");
+    if (data.logged_in) {
+      showApp(data.role);
+      await loadGames();
+    } else {
+      showLogin();
+    }
+  } catch (error) {
+    showLogin();
+    setStatus("loginStatus",
+      "Cannot connect to the local server. Start server.py first.", "error");
+  }
+})();
+</script>
+</body>
+</html>
